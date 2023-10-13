@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import numpy as np
+import os
 # AHP
 from pyDecision.algorithm import ahp_method
 
@@ -16,7 +17,6 @@ class IBGEDataFetcher:
     
     BASE_URL = "http://servicodados.ibge.gov.br/api/v1/localidades/estados"
     
-
         
     def __init__(self, state: str):
         # Verifica se a abreviação do estado é válida
@@ -25,22 +25,27 @@ class IBGEDataFetcher:
         self.state = state.lower()
 
     def fetch_municipios_info(self) -> pd.DataFrame:
-        endpoint = f'/{self.state}/municipios'
-        data = self.fetch_api_data(endpoint)
-        data = self.format_ids(data)
-        df = self.transform_to_dataframe(data)
-        lst_municipalites = self.municipalites_to_list(df)
+        if not os.path.exists(f"datasets/indicators_{self.state.lower()}.parquet"):
+            endpoint = f'/{self.state}/municipios'
+            data = self.fetch_api_data(endpoint)
+            data = self.format_ids(data)
+            df = self.transform_to_dataframe(data)
+            lst_municipalites = self.municipalites_to_list(df)
 
-        # Adicione os indicadores usando subclasses
-        indicador_idh = IndicadorIDH(self.state, lst_municipalites)
-        indicador_pib = IndicadorPIB(self.state, lst_municipalites)
-        indicador_gini = IndicadorGINI(self.state, lst_municipalites)
-        indicador_iap = IndicadorIAP(self.state, lst_municipalites)
+            # Adicione os indicadores usando subclasses
+            indicador_idh = IndicadorIDH(self.state, lst_municipalites)
+            indicador_pib = IndicadorPIB(self.state, lst_municipalites)
+            indicador_gini = IndicadorGINI(self.state, lst_municipalites)
+            indicador_iap = IndicadorIAP(self.state, lst_municipalites)
 
-        df = indicador_iap.add_indicador(df, "IAP")
-        df = indicador_idh.add_indicador(df, "IDH")
-        df = indicador_pib.add_indicador(df, "PIB")
-        df = indicador_gini.add_indicador(df, "GINI")
+            df = indicador_iap.add_indicador(df, "IAP")
+            df = indicador_idh.add_indicador(df, "IDH")
+            df = indicador_pib.add_indicador(df, "PIB")
+            df = indicador_gini.add_indicador(df, "GINI")
+
+            df.to_parquet(f"datasets/indicators_{self.state.lower()}.parquet")
+        else:
+            df = pd.read_parquet(f"datasets/indicators_{self.state.lower()}.parquet")
 
         return df
 
@@ -97,7 +102,6 @@ class IndicatorBase:
         dataframe = pd.concat([dataframe, indicador_data[indicator_name]], axis=1)
         return dataframe
     
-
 
 class IndicadorIDH(IndicatorBase):
     NUM = "37"
@@ -247,7 +251,7 @@ class IndicadorIAP(IndicatorBase):
 
 
 # Exemplo de uso:
-state = 'pa'  # Exemplo: Pará
-fetcher = IBGEDataFetcher(state)
-result = fetcher.fetch_municipios_info()
-print(result)
+#state = 'pa'  # Exemplo: Pará
+#fetcher = IBGEDataFetcher(state)
+#result = fetcher.fetch_municipios_info()
+#print(result)
