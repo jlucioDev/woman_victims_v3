@@ -1,5 +1,8 @@
 import requests
 import pandas as pd
+import numpy as np
+# AHP
+from pyDecision.algorithm import ahp_method
 
 #Buscador de dados do IBGE
 class IBGEDataFetcher:
@@ -34,7 +37,7 @@ class IBGEDataFetcher:
         indicador_gini = IndicadorGINI(self.state, lst_municipalites)
         indicador_iap = IndicadorIAP(self.state, lst_municipalites)
 
-        #df = indicador_iap.add_indicador(df, "IAP")
+        df = indicador_iap.add_indicador(df, "IAP")
         df = indicador_idh.add_indicador(df, "IDH")
         df = indicador_pib.add_indicador(df, "PIB")
         df = indicador_gini.add_indicador(df, "GINI")
@@ -151,22 +154,96 @@ class IndicadorIAP(IndicatorBase):
     NUM = "1"
     YEAR = "2019"
     INDICATOR = ['90201','90335','90358','90626','90640', '90272', '90397']
-
-    #90201: Delegacia especializada no Atendimento à Mulher
-    #90358: Ações de Enfrentamento à Violência contra a Mulher
-    #90272: Ações Socioeducativas - Violência doméstica e de gênero
     
-    #90640: Políticas ou programas na área de direitos humanos - Proteção de mulheres vítimas de violência doméstica 
-    #90626: Direitos ou política para mulheres
-    
-    #90335: Executa programas e ações para grupos específicos - Mulheres
-    #90397: Constituição de centros de referência e atendimento em direitos humanos
+    # g1 - 90201: Delegacia especializada no Atendimento à Mulher
+    # g2 - 90358: Ações de Enfrentamento à Violência contra a Mulher
+    # g3 - 90626: Direitos ou política para mulheres
+    # g4 - 90335: Executa programas e ações para grupos específicos - Mulheres
+    # g5 - 90640: Políticas ou programas na área de direitos humanos - Proteção de mulheres vítimas de violência doméstica 
+    # g6 - 90272: Ações Socioeducativas - Violência doméstica e de gênero
+    # g7 - 90397: Constituição de centros de referência e atendimento em direitos humanos
         
+    def fetch_api_data(self, endpoint: str) -> dict:
+        url = f'{self.BASE_URL}/{endpoint}'
+        response = requests.get(url)
+        data = response.json()
+        return data
 
     def find_indicator(self) -> pd.DataFrame:
-        # Implemente a lógica para buscar o indicador IAP
-        pass
+        # O Índice será calculado conforme os indicadores de 
+        # assistencias e proteção à mulher vítima de violência.
 
+        # Implemente a lógica para buscar o indicador IDH
+        endpoint = f"{self.NUM}/periodos/{self.YEAR}/indicadores/{'|'.join(map(str, self.INDICATOR))}/resultados/{self.municipalites}"
+        data = self.fetch_api_data(endpoint)
+
+        #Calcula os pesos dos indicadores
+        weightAHP = self.weight_by_ahp()
+
+        #Calcula o IAP
+        df = self.iap_calculator(data, weightAHP)
+        
+        return df
+
+    def weight_by_ahp(self):
+
+        # link online
+        # https://bpmsg.com/ahp/ahp-calc.php?n=7&t=AHP+priorities&c[0]=Delegacia+especializada&c[1]=A%C3%A7%C3%B5es+de+Enfrentamento&c[2]=A%C3%A7%C3%B5es+Socioeducativas&c[3]=Pol%C3%ADticas+DH&c[4]=Direitos+ou+pol%C3%ADtica+para+mulheres&c[5]=Executa+programas+e+a%C3%A7%C3%B5es&c[6]=centros+de+refer%C3%AAncia
+        # Parameters
+        weight_derivation = 'geometric' # 'mean'; 'geometric' or 'max_eigen'
+
+        # Dataset
+        dataset = np.array([
+        #g1     g2     g3     g4     g5     g6     g7
+        [1  ,   1  ,   5  ,   4  ,   1  ,   2  ,   5  ],   #g1
+        [1  ,   1  ,   2  ,   1  ,   2  ,   2  ,   5  ],   #g2
+        [1/5,   1/2,   1  ,   1/4,   1/4,   1/5,   2  ],   #g3
+        [1/4,   1  ,   4  ,   1  ,   1/2,   1/2,   5  ],   #g4
+        [1  ,   1/2,   4  ,   2  ,   1  ,   2  ,   5  ],   #g5
+        [1/2,   1/2,   5  ,   2  ,   1/2,   1  ,   5  ],   #g6
+        [1/5,   1/5,   1/2,  1/5 ,   1/5,   1/5,   1  ]    #g7
+        ])
+    
+        # Call AHP Function
+        weights, rc = ahp_method(dataset, wd = weight_derivation)
+
+        wIAP = [round(valor, 2) for valor in weights.tolist()]
+        wIAP = sorted(wIAP, reverse=True)
+
+        selected_indicators = [90201, 90358, 90626, 90335, 90640, 90272, 90397]
+   
+
+        # Crie um dicionário a partir das duas listas
+        weightDic = {}
+        for i in range(len(selected_indicators)):
+            weightDic[selected_indicators[i]] = wIAP[i]
+        
+        return weightDic
+
+    def iap_calculator(self, data, wdic: dict):
+
+        #dd  = [item["localidade"] for item in data]
+
+        df = pd.DataFrame(data[0]["res"])
+        df = df[['localidade']]
+
+        for indicador in data:
+
+                valores = []
+                for resultado in indicador['res']:
+                        localidade = resultado['localidade']
+                        valor = resultado['res']['2019']
+                        if valor.lower() == 'sim':
+                                valores.append({'localidade': localidade , indicador['id']: wdic[indicador['id']]})
+                        else:
+                                valores.append({'localidade': localidade , indicador['id']: 0})
+                df[indicador['id']] = pd.DataFrame(valores, columns=[indicador['id']])
+                
+        # Adicionando uma coluna de total
+        # Adiciona uma coluna chamada 'Total' com a soma das outras colunas
+        df['IAP'] = df.iloc[:, 1:].sum(axis=1)
+        df = df[['localidade', 'IAP']]
+        return df
 
 
 # Exemplo de uso:
