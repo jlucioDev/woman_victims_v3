@@ -24,27 +24,39 @@ class IBGEDataFetcher:
             raise ValueError("A abreviação do estado não é válida.")
         self.state = state.lower()
 
-    def fetch_municipios_info(self) -> pd.DataFrame:
+    def fetch_municipalites_info(self) -> pd.DataFrame:
+        # Verifica se existe um dataset (arquivo)
         if not os.path.exists(f"datasets/indicators_{self.state.lower()}.parquet"):
+            # Prepara o sufixo da url
             endpoint = f'/{self.state}/municipios'
+
+            # Busca os dados (id e nome) dos municípios
             data = self.fetch_api_data(endpoint)
+
+            # Formata os ids
             data = self.format_ids(data)
+
+            # transforma em dataframe
             df = self.transform_to_dataframe(data)
+
+            # cria um lista com os ids dos municípios.
             lst_municipalites = self.municipalites_to_list(df)
 
-            # Adicione os indicadores usando subclasses
-            indicador_idh = IndicadorIDH(self.state, lst_municipalites)
-            indicador_pib = IndicadorPIB(self.state, lst_municipalites)
-            indicador_gini = IndicadorGINI(self.state, lst_municipalites)
-            indicador_iap = IndicadorIAP(self.state, lst_municipalites)
+            # Adiciona os dados dos critérios usando as subclasses
+            idh_data = IDHDataFetcher(self.state, lst_municipalites)
+            pib_data = PIBDataFetcher(self.state, lst_municipalites)
+            gini_data = GINIDataFetcher(self.state, lst_municipalites)
+            iap_data = IAPDataFetcher(self.state, lst_municipalites)
 
-            df = indicador_iap.add_indicador(df, "IAP")
-            df = indicador_idh.add_indicador(df, "IDH")
-            df = indicador_pib.add_indicador(df, "PIB")
-            df = indicador_gini.add_indicador(df, "GINI")
+            df = iap_data.add_data(df, "IAP")
+            df = idh_data.add_data(df, "IDH")
+            df = pib_data.add_data(df, "PIB")
+            df = gini_data.add_data(df, "GINI")
 
+            # Salva os dataframe principal com os dados dos indicadores em um arquivo.
             df.to_parquet(f"datasets/indicators_{self.state.lower()}.parquet")
         else:
+            # Ler arquivo salvo
             df = pd.read_parquet(f"datasets/indicators_{self.state.lower()}.parquet")
 
         return df
@@ -59,6 +71,7 @@ class IBGEDataFetcher:
     def transform_to_dataframe(self, data: dict) -> pd.DataFrame:
         # Implemente a lógica para transformar os dados em um DataFrame Pandas
         df = pd.DataFrame(data, columns=["id", "nome"])
+        df.rename(columns={'nome': 'localidade'}, inplace=True)
         return df
 
     def municipalites_to_list(self, df: pd.DataFrame):
@@ -71,13 +84,14 @@ class IBGEDataFetcher:
 
     def format_ids(self, idata: str):
         # Remove o último dígito da chave "id" em cada dicionário
+        # Isso corrige as futuras buscar por ids.
         for item in idata:
             if 'id' in item:
                 item['id'] = int(str(item['id'])[:-1])
             
         return idata
     
-class IndicatorBase:
+class IBaseFetcher:
     BASE_URL = "https://servicodados.ibge.gov.br/api/v1/pesquisas"
     
 
@@ -91,24 +105,35 @@ class IndicatorBase:
         data = response.json()[0]["res"]
         return data
 
-    def find_indicator(self) -> pd.DataFrame:
+    def fetch_api_dataframe(self) -> pd.DataFrame:
         # Implemente a lógica para buscar o indicador específico
         # Retorne um DataFrame com os dados do indicador
         pass
 
-    def add_indicador(self, dataframe: pd.DataFrame, indicator_name: str) -> pd.DataFrame:
-        indicador_data = self.find_indicator()
+    def add_data(self, df, indicator_name: str) -> pd.DataFrame:
+        
+        # busca os dados 
+        df_indicador_data = self.fetch_api_dataframe()
 
-        dataframe = pd.concat([dataframe, indicador_data[indicator_name]], axis=1)
-        return dataframe
+        # Converte as colunas id dos dois dataframes para int
+        # Isso foi necessário para corrigir o merge entre eles.
+        df['id'] = df['id'].astype(int)
+        df_indicador_data['id'] = df_indicador_data['id'].astype(int)
+       
+        df = pd.merge(df, df_indicador_data, on='id', how='outer')
+
+        # Substituir valores NaN por 0 em todas as colunas
+        df.fillna(0, inplace=True)
+
+        return df
     
 
-class IndicadorIDH(IndicatorBase):
+class IDHDataFetcher(IBaseFetcher):
     NUM = "37"
     YEAR = "2010"
     INDICATOR = "30255"
 
-    def find_indicator(self) -> pd.DataFrame:
+    def fetch_api_dataframe(self) -> pd.DataFrame:
         # Implemente a lógica para buscar o indicador IDH
         endpoint = f"{self.NUM}/periodos/{self.YEAR}/indicadores/{self.INDICATOR}/resultados/{self.municipalites}"
         data = self.fetch_api_data(endpoint)
@@ -117,15 +142,21 @@ class IndicadorIDH(IndicatorBase):
 
         # Usa a função json_normalize
         df = pd.json_normalize(nested_data)
-    
+
+        #Converte os dados para valores numéricos
+        df['IDH'] = pd.to_numeric(df['IDH'], errors='coerce')
+
+        # Substituir valores diferentes de floar para 0.0
+        df['IDH'] = df['IDH'].apply(lambda x: float(x) if isinstance(x, float) else 0.0)
+
         return df
 
-class IndicadorPIB(IndicatorBase):
+class PIBDataFetcher(IBaseFetcher):
     NUM = "38"
     YEAR = "2019"
     INDICATOR = "47001"
 
-    def find_indicator(self) -> pd.DataFrame:
+    def fetch_api_dataframe(self) -> pd.DataFrame:
         # Implemente a lógica para buscar o indicador IDH
         endpoint = f"{self.NUM}/periodos/{self.YEAR}/indicadores/{self.INDICATOR}/resultados/{self.municipalites}"
         data = self.fetch_api_data(endpoint)
@@ -134,27 +165,43 @@ class IndicadorPIB(IndicatorBase):
 
         # Usa a função json_normalize
         df = pd.json_normalize(nested_data)
-    
+
+        #Converte os dados para valores numéricos
+        df['PIB'] = pd.to_numeric(df['PIB'], errors='coerce')
+        
+        # Substituir valores diferentes de floar para 0.0
+        df['PIB'] = df['PIB'].apply(lambda x: float(x) if isinstance(x, float) else 0.0)
+
         return df
 
-class IndicadorGINI(IndicatorBase):
+class GINIDataFetcher(IBaseFetcher):
     NUM = "36"
     YEAR = "2003"
     INDICATOR = "30252"
 
-    def find_indicator(self) -> pd.DataFrame:
+    def fetch_api_dataframe(self) -> pd.DataFrame:
         # Implemente a lógica para buscar o indicador IDH
         endpoint = f"{self.NUM}/periodos/{self.YEAR}/indicadores/{self.INDICATOR}/resultados/{self.municipalites}"
         data = self.fetch_api_data(endpoint)
+
         # Transforma os dados em uma lista aninhada
         nested_data = [{'id': item['localidade'], 'GINI': item['res'][self.YEAR]} for item in data]
 
         # Usa a função json_normalize
         df = pd.json_normalize(nested_data)
-    
+        
+        #Converte os dados para valores numéricos
+        df['GINI'] = pd.to_numeric(df['GINI'], errors='coerce')
+
+        # Transforma os valores para o complementar.
+        df['GINI'] = 1 - df['GINI']
+
+        # Substituir valores diferentes de floar para 0.0
+        df['GINI'] = df['GINI'].apply(lambda x: float(x) if isinstance(x, float) else 0.0)
+
         return df
 
-class IndicadorIAP(IndicatorBase):
+class IAPDataFetcher(IBaseFetcher):
     NUM = "1"
     YEAR = "2019"
     INDICATOR = ['90201','90335','90358','90626','90640', '90272', '90397']
@@ -173,7 +220,7 @@ class IndicadorIAP(IndicatorBase):
         data = response.json()
         return data
 
-    def find_indicator(self) -> pd.DataFrame:
+    def fetch_api_dataframe(self) -> pd.DataFrame:
         # O Índice será calculado conforme os indicadores de 
         # assistencias e proteção à mulher vítima de violência.
 
@@ -230,6 +277,7 @@ class IndicadorIAP(IndicatorBase):
 
         df = pd.DataFrame(data[0]["res"])
         df = df[['localidade']]
+        df.rename(columns={'localidade': 'id'}, inplace=True)
 
         for indicador in data:
 
@@ -238,20 +286,20 @@ class IndicadorIAP(IndicatorBase):
                         localidade = resultado['localidade']
                         valor = resultado['res']['2019']
                         if valor.lower() == 'sim':
-                                valores.append({'localidade': localidade , indicador['id']: wdic[indicador['id']]})
+                                valores.append({'id': localidade , indicador['id']: wdic[indicador['id']]})
                         else:
-                                valores.append({'localidade': localidade , indicador['id']: 0})
+                                valores.append({'id': localidade , indicador['id']: 0})
                 df[indicador['id']] = pd.DataFrame(valores, columns=[indicador['id']])
                 
         # Adicionando uma coluna de total
         # Adiciona uma coluna chamada 'Total' com a soma das outras colunas
         df['IAP'] = df.iloc[:, 1:].sum(axis=1)
-        df = df[['localidade', 'IAP']]
+        df = df[['id', 'IAP']]
         return df
 
 
 # Exemplo de uso:
-#state = 'pa'  # Exemplo: Pará
-#fetcher = IBGEDataFetcher(state)
-#result = fetcher.fetch_municipios_info()
-#print(result)
+# state = 'pa'  # Exemplo: Pará
+# fetcher = IBGEDataFetcher(state)
+# result = fetcher.fetch_municipalites_info()
+# print(result)
