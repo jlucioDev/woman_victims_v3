@@ -2,17 +2,17 @@ import random
 import time
 from termcolor import colored
 
-print(colored('Error Test!!!', 'red'))
-print(colored('Warning Test!!!', 'yellow'))
-print(colored('Success Test!!!', 'green'))
+#print(colored('Error Test!!!', 'red'))
+#print(colored('Warning Test!!!', 'yellow'))
+#print(colored('Success Test!!!', 'green'))
 
-
+GENES = "aáâàbcdeéêfghiíjklmnoóôõpqrstuúvwxyzAÁÂÀBCDEÉÈFGHIÍJKLMNOÓÔÕPQRSTUÚVWXYZ _-@!#$%¨&*()0123456789"
 
 # Define a população inicial
 def gerar_populacao(tamanho_populacao, tamanho_individuo):
     populacao = []
     for i in range(tamanho_populacao):
-        individuo = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz ') for j in range(tamanho_individuo))
+        individuo = ''.join(random.choice(GENES) for j in range(tamanho_individuo))
         populacao.append(individuo)
     return populacao
 
@@ -65,7 +65,7 @@ def mutar_populacao(populacao, taxa_mutacao, objetivo):
         novo_individuo = ''
         for i, gene in enumerate(individuo):
             if gene != objetivo[i] and (random.random() < taxa_mutacao):
-                novo_individuo += random.choice('abcdefghijklmnopqrstuvwxyz ')
+                novo_individuo += random.choice(GENES)
                 #print(f"Mutação {individuo} -> {novo_individuo}", end="")
             else:
                 novo_individuo += gene
@@ -87,7 +87,8 @@ def algoritmo_genetico(objetivo, tamanho_populacao, tamanho_individuo, taxa_cruz
         
         # Verificar se algum indivíduo atingiu o objetivo
         if objetivo in melhores_individuos:
-            print(f"Geração", str(geracao+1).zfill(3), " - Solução encontrada:", objetivo)
+            #print(f"Geração", str(geracao+1).zfill(3), " - Solução encontrada:", objetivo)
+            print(colored(f"Geração {str(geracao+1).zfill(3)} - Solução encontrada:  {objetivo}", 'green'))
             return
 
         print("Geração", str(geracao+1).zfill(3), "- Melhor indivíduo:", melhor_individuo)
@@ -105,7 +106,7 @@ def algoritmo_genetico(objetivo, tamanho_populacao, tamanho_individuo, taxa_cruz
 while True:
     
     # Solicita a palavra ou frase do usuário
-    objetivo = input("Digite a palavra ou frase a ser adivinhada: ")
+    objetivo = input(colored("Digite a palavra ou frase a ser adivinhada: ", 'yellow'))
 
     # Executa o algoritmo genético com os parâmetros desejados
     algoritmo_genetico(objetivo, tamanho_populacao=100, tamanho_individuo=len(objetivo), taxa_cruzamento =0.8, taxa_mutacao=0.1, tamanho_torneio=5, numero_geracoes=1000)

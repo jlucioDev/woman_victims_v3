@@ -273,8 +273,6 @@ class IAPDataFetcher(IBaseFetcher):
 
     def iap_calculator(self, data, wdic: dict):
 
-        #dd  = [item["localidade"] for item in data]
-
         df = pd.DataFrame(data[0]["res"])
         df = df[['localidade']]
         df.rename(columns={'localidade': 'id'}, inplace=True)
