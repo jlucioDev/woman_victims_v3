@@ -1,0 +1,10 @@
+{
+    "python.analysis.extraPaths": [
+        "./dashboard/components/sidebar",
+        "./dashboard/components",
+        "./dashboard/components/pie",
+        "./dashboard/components",
+        "./dashboard/components/map"
+    ],
+    "materialkv.pythonFile": "main.py"
+}

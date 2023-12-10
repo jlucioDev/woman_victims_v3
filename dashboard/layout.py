@@ -30,26 +30,53 @@ footer_style = {
 }
 
 
+
 #Cria o layout da aplicação
-def create_layout(fig, pie_fig):
+def create_layout(searchbar, fig, pie_fig):
+    # Chame a função para criar a barra de pesquisa
+    search_bar_component = searchbar()
+
+    # Titulo da Aplicação
+    markdown_title = '''
+        ### **Dashboard** - Violência Contra a Mulher em  Municípios Paraenses.
+
+
+        Apresentação das informações de dados de violência e classificação com método multicritério ELECTRE Tri-b.
+
+    '''
+
     # Container principal do layout
     layout = dbc.Container(
         [
             # Cabeçalho
             dbc.Row(
-                dbc.Col(html.H1("Dashboard - Violência Contra a mulher", className='text-left mb-4')),
-                className = 'mb-5',
+                # dbc.Col(html.H1(children=[
+                #             html.Span("Dashboard", style={'fontWeight': 'bold'}),  # Palavra "Dashboard" em negrito
+                #             " – Violência Contra a Mulher"
+                # ])),
+                # className = 'mb-5',
+                dcc.Markdown(children=markdown_title)
+                
             ),
-            #Linha com dois Cards
+            # Linha de pesquisa aqui
+            dbc.Row(
+                dbc.Col(search_bar_component, width=12),  # Certifique-se de ajustar a largura conforme necessário
+                className='mb-4'
+            ),
+            
+            # Linha com dois Cards
             dbc.Row(
                 [   
                     # Primeira Coluna
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
-                                dcc.Graph(figure=pie_fig),
+                                html.Div(
+                                    dcc.Graph(figure=pie_fig),
+                                    style={'display': 'flex', 'justifyContent': 'center', 'alignItems': 'center'}
+                                )
                             ),
-                            className="h-60"
+                            className="h-100"
                         ),
                         md=3
                     ),
