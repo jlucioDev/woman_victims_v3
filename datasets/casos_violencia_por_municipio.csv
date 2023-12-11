@@ -1,0 +1,144 @@
+,id,localidade,classificacao,casos
+0,1500107,Abaetetuba,4,77
+1,1500131,Abel Figueiredo,3,0
+2,1500206,Acará,3,11
+3,1500305,Afuá,4,1
+4,1500347,Água Azul do Norte,2,4
+5,1500404,Alenquer,4,8
+6,1500503,Almeirim,4,5
+7,1500602,Altamira,4,14
+8,1500701,Anajás,5,0
+9,1500800,Ananindeua,2,237
+10,1500859,Anapu,4,10
+11,1500909,Augusto Corrêa,5,6
+12,1500958,Aurora do Pará,5,3
+13,150006,Aveiro,5,3
+14,150105,Bagre,5,3
+15,150204,Baião,4,8
+16,150253,Bannach,4,1
+17,150303,Barcarena,1,65
+18,150402,Belém,2,958
+19,150451,Belterra,4,0
+20,150501,Benevides,2,18
+21,150576,Bom Jesus do Tocantins,4,2
+22,150600,Bonito,4,3
+23,150709,Bragança,4,29
+24,150725,Brasil Novo,2,1
+25,150758,Brejo Grande do Araguaia,4,2
+26,150782,Breu Branco,4,6
+27,150808,Breves,5,12
+28,150907,Bujaru,2,11
+29,1502004,Cachoeira do Piriá,5,1
+30,150956,Cachoeira do Arari,5,3
+31,1502103,Cametá,4,16
+32,1502152,Canaã dos Carajás,0,14
+33,1502202,Capanema,2,25
+34,1502301,Capitão Poço,3,5
+35,1502400,Castanhal,2,94
+36,1502509,Chaves,5,1
+37,1502608,Colares,5,3
+38,1502707,Conceição do Araguaia,3,4
+39,1502756,Concórdia do Pará,4,10
+40,1502764,Cumaru do Norte,2,0
+41,1502772,Curionópolis,1,5
+42,1502806,Curralinho,5,14
+43,1502855,Curuá,4,2
+44,1502905,Curuçá,5,13
+45,1502939,Dom Eliseu,4,4
+46,1502954,Eldorado do Carajás,3,5
+47,1503002,Faro,5,0
+48,1503044,Floresta do Araguaia,3,1
+49,1503077,Garrafão do Norte,4,4
+50,1503093,Goianésia do Pará,4,3
+51,1503101,Gurupá,5,6
+52,1503200,Igarapé-Açu,4,10
+53,1503309,Igarapé-Miri,4,16
+54,1503408,Inhangapi,4,3
+55,1503457,Ipixuna do Pará,4,4
+56,1503507,Irituia,5,6
+57,1503606,Itaituba,2,20
+58,1503705,Itupiranga,4,4
+59,1503754,Jacareacanga,1,0
+60,1503804,Jacundá,4,6
+61,1503903,Juruti,2,5
+62,1504000,Limoeiro do Ajuru,4,3
+63,1504059,Mãe do Rio,4,15
+64,1504109,Magalhães Barata,4,0
+65,1504208,Marabá,1,106
+66,1504307,Maracanã,5,10
+67,1504406,Marapanim,5,10
+68,1504422,Marituba,2,48
+69,1504455,Medicilândia,2,1
+70,1504505,Melgaço,5,8
+71,1504604,Mocajuba,3,2
+72,1504703,Moju,4,16
+73,1504802,Monte Alegre,4,8
+74,1504901,Muaná,5,4
+75,1504950,Nova Esperança do Piriá,4,4
+76,1504976,Nova Ipixuna,4,0
+77,1505007,Nova Timboteua,5,4
+78,1505031,Novo Progresso,2,2
+79,1505064,Novo Repartimento,4,3
+80,1505106,Óbidos,2,1
+81,1505205,Oeiras do Pará,3,4
+82,1505304,Oriximiná,4,2
+83,1505403,Ourém,4,1
+84,1505437,Ourilândia do Norte,4,2
+85,1505486,Pacajá,2,2
+86,1505494,Palestina do Pará,4,1
+87,1505502,Paragominas,1,40
+88,1505536,Parauapebas,1,68
+89,1505551,Pau D'Arco,4,0
+90,1505601,Peixe-Boi,5,3
+91,1505635,Piçarra,2,3
+92,1505650,Placas,4,0
+93,1505700,Ponta de Pedras,5,9
+94,1505809,Portel,3,13
+95,1505908,Porto de Moz,5,3
+96,1506005,Prainha,4,1
+97,1506104,Primavera,2,0
+98,1506112,Quatipuru,5,4
+99,1506138,Redenção,2,25
+100,1506161,Rio Maria,2,14
+101,1506187,Rondon do Pará,4,11
+102,1506195,Rurópolis,5,1
+103,1506203,Salinópolis,3,20
+104,1506302,Salvaterra,5,0
+105,1506351,Santa Bárbara do Pará,4,7
+106,1506401,Santa Cruz do Arari,5,2
+107,1506500,Santa Izabel do Pará,4,14
+108,1506559,Santa Luzia do Pará,5,1
+109,1506583,Santa Maria das Barreiras,2,0
+110,1506609,Santa Maria do Pará,3,8
+111,1506708,Santana do Araguaia,2,3
+112,1506807,Santarém,2,144
+113,1506906,Santarém Novo,5,0
+114,1507003,Santo Antônio do Tauá,4,7
+115,1507102,São Caetano de Odivelas,5,5
+116,1507151,São Domingos do Araguaia,4,3
+117,1507201,São Domingos do Capim,4,4
+118,1507300,São Félix do Xingu,3,9
+119,1507409,São Francisco do Pará,4,2
+120,1507458,São Geraldo do Araguaia,4,1
+121,1507466,São João da Ponta,5,0
+122,1507474,São João de Pirabas,5,7
+123,1507508,São João do Araguaia,4,3
+124,1507607,São Miguel do Guamá,4,17
+125,1507706,São Sebastião da Boa Vista,5,3
+126,1507755,Sapucaia,2,0
+127,1507805,Senador José Porfírio,2,2
+128,1507904,Soure,5,2
+129,1507953,Tailândia,4,11
+130,1507961,Terra Alta,5,3
+131,1507979,Terra Santa,4,4
+132,1508001,Tomé-Açu,3,10
+133,1508035,Tracuateua,5,1
+134,1508050,Trairão,2,1
+135,1508084,Tucumã,2,12
+136,1508100,Tucuruí,1,52
+137,1508126,Ulianópolis,4,3
+138,1508159,Uruará,3,2
+139,1508209,Vigia,5,10
+140,1508308,Viseu,5,4
+141,1508357,Vitória do Xingu,0,6
+142,1508407,Xinguara,1,13

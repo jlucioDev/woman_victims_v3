@@ -1,14 +1,15 @@
 import json
 import dash
-from dash import html, State, Input, Output
+from dash import html, dcc, State, Input, Output
+import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd
 from layout import create_layout
 from components.map.map_graph import create_map
 from components.pie.pie_graph import create_pie
-from components.sidebar.sidebar import create_sidebar, SIDEBAR_STYLE_EXPANDED, SIDEBAR_STYLE_COLLAPSED
-from components.search_bar.search_bar import create_searchbar
-import dash_bootstrap_components as dbc
+from components.settings_bar.settings_bar import create_settingsbar
+from classifier.classifier_model import classifierModel
+
 
 # Carregando o arquivo GeoJSON
 with open('dashboard/components/map/munics_modified.geojson') as geo:
@@ -24,41 +25,17 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = html.Div(
     [
         create_layout(
-            create_searchbar,
+            create_settingsbar,
             create_map(df, municipios), 
-            create_pie(df)
+            create_pie(df),
+            dcc.Store(id='dataset', data=df.to_dict('records')),  # Armazenar os dados do DataFrame
+    
         ),
-        #create_sidebar()
     ]
 )
-# Callback para alternar a sidebar
-# @app.callback(
-#     Output("sidebar", "style"),
-#     [Input("sidebar-toggle", "n_clicks")],
-#     [State("sidebar", "style")],
-# )
-# def toggle_sidebar(n_clicks, style):
-#     if n_clicks:
-#         if style and style["width"] == SIDEBAR_STYLE_EXPANDED["width"]:
-#             # Sidebar está expandida, então recolha
-#             return SIDEBAR_STYLE_COLLAPSED
-#         else:
-#             # Sidebar está recolhida, então expanda
-#             return SIDEBAR_STYLE_EXPANDED
-#     # Se n_clicks é None (não clicado ainda), retorne o estilo que foi passado para a função
-#     return style
 
-# # Callback para atualizar a lista com a seleção do usuário
-# @app.callback(
-#     Output('sidebar-output-container', 'children'),
-#     [Input('sidebar-submit', 'n_clicks')],
-#     [State('checklist-criteria', 'value')],
-# )
-# def update_output(n_clicks, selected_criteria):
-#     if n_clicks:
-#         return html.Ul([html.Li(criteria) for criteria in selected_criteria])
     
-# Callback para atualizar as informações
+# Callback para atualizar as informações ao clicar no mapa
 @app.callback(
     [
         Output('info_idh', 'children'),
@@ -86,14 +63,40 @@ def display_click_data(clickData):
             f"Classificação: {municipio_info['class']}",
             f"ID: {municipio_info['id']}, Nome: {municipio_info['localidade']}"
         )
-    else:
-        print("ClickData is None")  # Imprime para depuração
+
     # Caso nenhum município esteja clicado, retorna informações vazias
     return ("IDH:", "PIB:", "GINI:", "IAP (Índice de Ass. Proteção):", "Classificação", 'Clique em um município')
 
 
+# Callback para classificar os dados.
+@app.callback(
+    Output('mapa-municipios', 'figure'),  # substitua por um componente de saída adequado em seu layout
+    Input('classification-button', 'n_clicks'),
+    State('memory-criteria', 'value'),
+    State('memory-classifier', 'value'),
+    prevent_initial_call=True  # Evita que o callback seja disparado na inicialização
+)
+def classify_update_map(n_clicks, selected_criteria, selected_type):
+    
+    # Executa alguma ação aqui quando o botão for clicado
+    print(f'Botão clicado! {n_clicks}')
+
+    # Validação
+    if len(selected_criteria) > 2:
+        
+        
+        # Recebe a nova coluna de classificação
+        c = classifierModel('pa')
+        cl = c.create_classification(df, selected_criteria, selected_type)
+        df['class'] = cl
+        create_map(df, municipios)
+        print(" ---  Mapa Recriado!")
 
        
+        # Altera o DataFrame
+
+        # Recria o gráfico com o dataFrame atualizado.
+
 
 # Executando o servidor
 if __name__ == '__main__':
