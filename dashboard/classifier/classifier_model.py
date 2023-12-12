@@ -52,8 +52,15 @@ class classifierModel:
         self.W = [0.0]*columns_count
         if "IAP" in df_criteria.columns:
             indice_coluna = df_criteria.columns.get_loc("IAP")
-            self.W[indice_coluna] = 0.6
+            self.W[indice_coluna] = 0.3
+        # if "IDH" in df_criteria.columns:
+        #     indice_coluna = df_criteria.columns.get_loc("IDH")
+        #     self.W[indice_coluna] = 0.2
+        # if "PIB" in df_criteria.columns:
+        #     indice_coluna = df_criteria.columns.get_loc("PIB")
+        #     self.W[indice_coluna] = 0.1
 
+        print(self.W)
         
 
         print(f''' 
@@ -98,7 +105,7 @@ class classifierModel:
         self.W = [0.0]*columns_count
         if "IAP" in df_criteria.columns:
             indice_coluna = df_criteria.columns.get_loc("IAP")
-            self.W[indice_coluna] = 0.6
+            self.W[indice_coluna] = 0.0
         print(self.W)
 
         #self.W = [0.6,     0.0,      0.0,     0.0]
@@ -114,28 +121,28 @@ class classifierModel:
         generations = 30 #    30
         samples     = 0.10 #  10
 
-        models = tree_e_tri_b.tree_electre_tri_b(
-            X,
-            target_assignment = target, 
-            W = self.W, 
-            Q = self.Q, 
-            P = self.P, 
-            V = self.V, 
-            B = self.B, 
-            cut_level = cut_level, 
-            rule = rule, 
-            number_of_classes = classes, 
-            elite = elite, 
-            eta = eta, 
-            mu = mu, 
-            population_size = size, 
-            mutation_rate = rate, 
-            generations = generations, 
-            samples = samples, 
-            number_of_models = models)   
-        # with open('datasets/models_treinado_acc_84.pkl', 'rb') as f:
-        #     models_saved = pickle.load(f)
-        # models = models_saved
+        # models = tree_e_tri_b.tree_electre_tri_b(
+        #     X,
+        #     target_assignment = target, 
+        #     W = self.W, 
+        #     Q = self.Q, 
+        #     P = self.P, 
+        #     V = self.V, 
+        #     B = self.B, 
+        #     cut_level = cut_level, 
+        #     rule = rule, 
+        #     number_of_classes = classes, 
+        #     elite = elite, 
+        #     eta = eta, 
+        #     mu = mu, 
+        #     population_size = size, 
+        #     mutation_rate = rate, 
+        #     generations = generations, 
+        #     samples = samples, 
+        #     number_of_models = models)   
+        with open('datasets/models_treinado_acc_84.pkl', 'rb') as f:
+            models_saved = pickle.load(f)
+        models = models_saved
 
         # Predict
         prediction, solutions = tree_e_tri_b.predict(models, X, verbose = False, rule = rule)

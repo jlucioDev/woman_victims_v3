@@ -6,7 +6,6 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-
 from electre_tree.util_e_tri_b import genetic_algorithm, electre_tri_b
 from sklearn.cluster import KMeans
 from sklearn.decomposition import TruncatedSVD
