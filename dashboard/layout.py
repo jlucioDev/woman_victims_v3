@@ -48,13 +48,8 @@ def create_layout(searchbar, fig, pie_fig):
     # Container principal do layout
     layout = dbc.Container(
         [
-            # Cabeçalho
             dbc.Row(
-                # dbc.Col(html.H1(children=[
-                #             html.Span("Dashboard", style={'fontWeight': 'bold'}),  # Palavra "Dashboard" em negrito
-                #             " – Violência Contra a Mulher"
-                # ])),
-                # className = 'mb-5',
+
                 dcc.Markdown(children=markdown_title)
                 
             ),
@@ -71,9 +66,13 @@ def create_layout(searchbar, fig, pie_fig):
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
-                                html.Div(
-                                    dcc.Graph(figure=pie_fig),
-                                    style={'display': 'flex', 'justifyContent': 'center', 'alignItems': 'center'}
+                                dcc.Loading(
+                                    id="loading-pieChart",
+                                    type="default",
+                                    children=[html.Div( 
+                                        dcc.Graph(id='pie-chart', figure=pie_fig),
+                                        style={'display': 'flex', 'justifyContent': 'center', 'alignItems': 'center'})
+                                    ],  # Esta div será atualizada após a classificação
                                 )
                             ),
                             className="h-100"
@@ -84,7 +83,14 @@ def create_layout(searchbar, fig, pie_fig):
                     dbc.Col(
                         dbc.Card(
                             dbc.CardBody(
-                                [dbc.Col(dcc.Graph(id='mapa-municipios', figure=fig))]  # Placeholder para o gráfico do mapa
+                                dcc.Loading(
+                                    id="loading-mapChart",
+                                    type="default",  # Você pode escolher entre 'graph', 'cube', 'circle', 'dot', ou 'default'
+                                    children=[
+                                        html.Div(id="loading-output-1"),
+                                        dcc.Graph(id='mapa-municipios', figure=fig)
+                                    ],
+                                ),
                             ),
                             className="h-60"
                         ),

@@ -9,7 +9,7 @@ def create_pie(df):
         2: '#E964A1',
         3: '#954D62',
     }
-    df['risk_description'] = df['class'].map({
+    df['risk_description'] = df['CLASS'].map({
         0: 'Risco Baixo',
         1: 'Risco Médio',
         2: 'Risco Alto',
@@ -21,7 +21,7 @@ def create_pie(df):
         df,
         names='risk_description',
         title='Distribuição de Riscos',
-        color='class',
+        color='CLASS',
         #color_discrete_sequence=px.colors.sequential.PuRd,
         color_discrete_map=class_colors,
     )

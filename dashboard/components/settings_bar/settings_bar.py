@@ -38,7 +38,7 @@ def create_settingsbar():
                 {'label': 'GINI', 'value': 'GINI'},
                 {'label': 'IAP', 'value': 'IAP'}
             ],
-            value=['IDH', 'PIB', 'GINI', 'IAP'],
+            value=['IAP', 'IDH', 'PIB', 'GINI'],
             id='memory-criteria',
             multi=True,
             className="mb-1"
