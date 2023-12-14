@@ -12,8 +12,8 @@ def create_map(df, municipios_json):
         color_continuous_scale=px.colors.sequential.PuRd,  # Escala de cores em tons de laranja
         range_color=(0, df['CLASS'].max()),  # Intervalo de cores baseado na coluna 'class'
         opacity=0.7,
-        #mapbox_style="carto-positron",
-        mapbox_style="white-bg", 
+        mapbox_style="carto-positron", #carto-darkmatter, carto-positron, open-street-map, stamen-terrain, stamen-toner, stamen-watercolor, white-bg
+        #mapbox_style="white-bg", 
         hover_name="localidade",  # Definindo 'localidade' como o texto principal no hover
         hover_data={"id": False, "CLASS": False, "IDH": False, "IAP": False},  # Ocultando 'id', 'class', 'IDH' e 'IAP' no hover
         zoom=4.5,

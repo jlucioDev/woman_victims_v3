@@ -32,7 +32,7 @@ footer_style = {
 
 
 #Cria o layout da aplicação
-def create_layout(searchbar, fig, pie_fig):
+def create_layout(searchbar, fig_map, pie_fig, fig_annual):
     # Chame a função para criar a barra de pesquisa
     search_bar_component = searchbar()
 
@@ -88,7 +88,7 @@ def create_layout(searchbar, fig, pie_fig):
                                     type="default",  # Você pode escolher entre 'graph', 'cube', 'circle', 'dot', ou 'default'
                                     children=[
                                         html.Div(id="loading-output-1"),
-                                        dcc.Graph(id='mapa-municipios', figure=fig)
+                                        dcc.Graph(id='mapa-municipios', figure=fig_map)
                                     ],
                                 ),
                             ),
@@ -118,8 +118,23 @@ def create_layout(searchbar, fig, pie_fig):
                         md=3  # Tamanho da coluna para as informações
                     ),
                 ],
-                className="g-4",  # Espaçamento entre as colunas
+                className="mt-40 mb-4",  # Espaçamento entre as colunas
             ),
+            dbc.Row(
+                dbc.Card(
+                    dbc.CardBody(
+                        dcc.Loading(
+                            id="loading-LinearChart",
+                            type="default",
+                            children=[html.Div(
+                                dcc.Graph(id='annual-violence-chart', figure=fig_annual),
+                                style={'display': 'flex', 'justifyContent': 'center', 'alignItems': 'center'})
+                            ],  # Esta div será atualizada após a classificação
+                        )
+                    ),
+                ),
+                className="mx-2 mt-10 mb-4"  # Classe para margem externa lateral de 20 e superior de 40
+            )
         ],
         fluid=True,
     )

@@ -8,6 +8,7 @@ from layout import create_layout
 from components.map.map_graph import create_map
 from components.pie.pie_graph import create_pie
 from components.settings_bar.settings_bar import create_settingsbar
+from components.linearMap.linear_map import create_linear_graph
 from classifier.classifier_model import classifierModel
 from dash.exceptions import PreventUpdate
 
@@ -17,10 +18,12 @@ with open('dashboard/components/map/munics_modified.geojson') as geo:
     municipios = json.load(geo)
 
 # Carregando o dataset com os municípios classificados
-df = pd.read_parquet('datasets/df_classified_pa.parquet')
+#df = pd.read_parquet('datasets/df_classified_pa.parquet')
+df = pd.read_csv('datasets/df_classified_pa_casos.csv')
 
 # Inicializando a aplicação Dash com o tema do Bootstrap
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+
 
 # Configurando o layout da aplicação usando a função importada
 app.layout = html.Div(
@@ -30,11 +33,13 @@ app.layout = html.Div(
             create_settingsbar,
             create_map(df, municipios), 
             create_pie(df),
+            create_linear_graph(df),
         ),
         dcc.Store(id='dataset', data=df.to_dict('records')),  # Armazenar os dados do DataFrame
     
     ]
 )
+
 
     
 # Callback para atualizar as informações ao clicar no mapa
